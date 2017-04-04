@@ -1,0 +1,8 @@
+<<<<<<< HEAD
+Hello sangmyung university
+this is a line
+=======
+Hello sangmyung university
+this is a line
+>>>>>>> Conneting remote and local
+Hello
