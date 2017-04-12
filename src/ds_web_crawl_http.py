@@ -1,4 +1,4 @@
-# coding: utf-8
+﻿# coding: utf-8
 
 import sys
 import os
@@ -17,9 +17,9 @@ def changeHeader():
         print u"""(1)네이버\n(2)다음\n(3)파이썬\n(4)구글\n(5)EXIT\n"""
         num = input(">>")
         if(num==1):
-            url = "https://search.naver.com/" + "search.naver?query=python"
-            #print u"\n\n방화벽으로 막혀있음 확인...\n\n"
-            #continue
+            #url = "https://search.naver.com/" + "search.naver?query=python"
+            print u"\n\n방화벽으로 막혀있음 확인...\n\n"
+            continue
         elif(num==2):
             #url = "https://www.daum.net/" + "search?w=tot&q=python"
             print u"\n\n방화벽으로 막혀있음 확인...\n\n"
@@ -47,18 +47,20 @@ def changeHeader():
      
 def search_on_wiki():
     while(1):
-        keyword = input("Please, Insert what you want to know in English>>")    
+        keyword = input("Please, Insert what you want to know in English>>")  
+        if(keyword == "exit"):
+			break
         url = "https://en.wikipedia.org/wiki/Wiki/" + keyword
         my_parser = lxml.etree.HTMLParser()
         uResponse = urllib.urlopen(url)
-        html_text = uResponse.read()
+        html_tree = lxml.html.fromstring(uResponse.read())
         
-        title = CSSSelector('h1#firstHeading::text')
-        nodes = title(html_text)
+        title = CSSSelector('h1[id="firstHeading"]')
+        nodes = title(html_tree)
         
         for i in nodes:
-            print "\n\n",i, "\n\n"
-        
+            print "\n\n",i.text, "\n\n"
+
 def main():
     changeHeader()
     print u"\n\n 위키에서 검색하기\n\n"
