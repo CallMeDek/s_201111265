@@ -34,7 +34,7 @@ def with_Regex():
         
 def with_CSSSelector():
     #html_str = getString()
-    keyword = "비오는"
+    keyword = input("insert>>")
     url = "http://music.naver.com/search/search.nhn?query={0}&x=0&y=0".format(keyword)
     html_str = requests.get(url).text
     

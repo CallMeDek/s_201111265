@@ -1,4 +1,4 @@
-﻿# coding: utf-8
+# coding: utf-8
 
 import sys
 import os
@@ -47,23 +47,29 @@ def changeHeader():
      
 def search_on_wiki():
     while(1):
-        keyword = input("Please, Insert what you want to know in English>>")  
-        if(keyword == "exit"):
-			break
+        keyword = input("Please, Insert what you want to know in English>>")    
         url = "https://en.wikipedia.org/wiki/Wiki/" + keyword
         my_parser = lxml.etree.HTMLParser()
         uResponse = urllib.urlopen(url)
-        html_tree = lxml.html.fromstring(uResponse.read())
+        html_text = lxml.html.fromstring(uResponse.read())
         
         title = CSSSelector('h1[id="firstHeading"]')
-        nodes = title(html_tree)
+        nodes = title(html_text)
         
         for i in nodes:
             print "\n\n",i.text, "\n\n"
-
+            
+        print "It may refer to: \n"
+        
+        contents = CSSSelector('div[id="#mw-content-text"]  h2')
+        nodes = contents(html_text)
+        
+        for j in nodes:
+            print "\n", j.text, "\n"
+        
 def main():
-    changeHeader()
-    print u"\n\n 위키에서 검색하기\n\n"
+    #changeHeader()
+    #print u"\n\n 위키에서 검색하기\n\n"
     search_on_wiki()
     
 if __name__=="__main__":
