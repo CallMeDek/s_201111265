@@ -1,10 +1,9 @@
-# coding: utf-8
-import os
-import requests
-import urlparse
-import mylib
 
-def doIt():
+#coding : utf-8
+
+import os, mylib, urlparse, requests
+
+def dolt():
     keyPath=os.path.join(os.getcwd(), 'src', 'key.properties')
     key=mylib.getKey(keyPath)
     # (1) make params with resource IDs
@@ -17,17 +16,17 @@ def doIt():
     params=os.path.join(KEY,TYPE,SERVICE,START_INDEX,END_INDEX,LINE_NUM)
     # (2) make a full url
     _url='http://openAPI.seoul.go.kr:8088/'
-    
     url=urlparse.urljoin(_url,params)
-    url_real = ''
-    for i in url:
-        if i == '\\':
-            url_real += '/'
+    url_c = ''
+    for char in url:
+        if char == '\\':
+            url_c += '/'
         else:
-            url_real += i
-    # (3) get data
-    data=requests.get(url_real).text
+            url_c += char
+    #print url_c
+    #print url
+    data=requests.get(url_c).text
     print data[:300]
-
+    
 if __name__ == "__main__":
-    doIt()
+    dolt()

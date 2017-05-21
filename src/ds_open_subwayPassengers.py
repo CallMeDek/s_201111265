@@ -1,69 +1,65 @@
-# coding: utf-8
+
+#coding: utf8
+'''
+    사용API 주소: http://data.seoul.go.kr/openinf/openapiview.jsp?infId=OA-12914
+    사용 예시 : http://openapi.seoul.go.kr:8088/(인증키)/xml/CardSubwayStatsNew/1/5/20151101
+'''
 import os
-import requests
-import json
-from pymongo import MongoClient
-import mylib
 
-Client = MongoClient('localhost:27017')
-_db=Client['ds_open_subwayPassengersDb'] #db created by mongo
-_table=_db['db_open_subwayTable'] #collection
-#db=Client.ds_rest_subwayPassengers
+def make_url(START_INDEX, END_INDEX):
+    import mylib, url_encode_problem_sol
+    basic_url = 'http://openapi.seoul.go.kr:8088'
+    key_path = os.path.join(os.getcwd(), 'src', 'key.properties')
+    key_dict = mylib.getKey(key_path)
+    my_key = key_dict['subject7']
+    TYPE = 'json'
+    SERVICE = 'CardSubwayStatsNew'
+    USE_DT = '20170518'
 
-def saveJson(_fname,_data):
-    import io
-    with io.open(_fname, 'a', encoding='utf8') as json_file:
-        _j=json.dumps(_data, json_file, ensure_ascii=False, encoding='utf8')
+    url = os.path.join(basic_url, my_key, TYPE, SERVICE, str(START_INDEX), str(END_INDEX), USE_DT)
+    url_c = url_encode_problem_sol.convert_url_os_path_join(url)
+    
+    return url_c
+
+def get_json(start, end):
+    import requests
+    url = make_url(start, end)
+    rResponse = requests.get(url)
+    rResponse_json = ''
+    if(rResponse.status_code == 200):
+        rResponse_json = rResponse.json()
+    return rResponse_json
+
+def saveJson(filename, data):
+    import io, json
+    with io.open(filename, 'a') as json_file:
+        _j=json.dumps(data, json_file, ensure_ascii=False, encoding='utf8')
         json_file.write(_j+"\n")
+        
+def saveMongo(data):
+    import pymongo
+    from pymongo import MongoClient
+    
+    client = MongoClient('localhost:27017')
+    db = client.myDB
+    
+    table = db['db_open_subwayTable']
+    table.insert_one(data)
 
-def readJson(_fname):
-    for line in open(_fname, 'r').readlines():
-        _j=json.loads(line)
-        #print _j['id'],_j['text']
-        print _j['id']
+def main():
+    start_index = 1
+    end_index = 5
+    iterator = 0
+    max_iterator = 5
+    f_name = 'src\\ds_open_subwayPassengers.json'
+    while(iterator < max_iterator):
+        json = get_json(start_index, end_index)
+        #print json, "\n\n"
+        saveJson(f_name, json)
+        saveMongo(json)
+        start_index += 5
+        end_index += 5
+        iterator += 1
 
-def saveDB(_data):
-    _table.insert_one(_data)
-
-def readDB():
-    for tweet in _table.find():
-        print tweet['id'],tweet['text']
-
-def saveFile(_fname,_data):
-    fp=open(_fname,'a')
-    fp.write(_data+"\n")
-
-def doIt():
-    keyPath=os.path.join(os.getcwd(), 'src', 'key.properties')
-    key=mylib.getKey(keyPath)  
-    _key=key['dataseoul'] #KEY='73725.....'
-    _url='http://openAPI.seoul.go.kr:8088'
-    _type='json'
-    _service='CardSubwayStatisticsService'
-    _start_index=1
-    _end_index=5
-    _use_mon='201306'
-    _maxIter=20
-    _iter=0
-    _jfname='src/ds_open_subwayPassengers.json'
-    while _iter<_maxIter:
-        _api=os.path.join(_url,_key,_type,_service,str(_start_index),str(_end_index),_use_mon)
-        _api_c = _api
-        _api = ''
-        for i in _api_c:
-            if (i == "\\"):
-                _api += '/'
-            else:
-                _api += i
-        #print _api
-        r=requests.get(_api)
-        _json=r.json()
-        print _json, "\n"
-        saveJson(_jfname,_json)
-        saveDB(_json)
-        _start_index+=5
-        _end_index+=5
-        _iter+=1
-
-if __name__ == "__main__":
-    doIt()
+if __name__=="__main__":
+    main()
